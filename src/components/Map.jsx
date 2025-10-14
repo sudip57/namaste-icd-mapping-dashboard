@@ -35,11 +35,13 @@ const Map = () => {
             <Items item={item} index={index} />
           ))}
     </div>
-    <div className='flex overflow-x-scroll gap-2 justify-center'>
+    <div className='flex justify-center items-center p-2 w-full'>
+        <div className='flex overflow-x-auto gap-2'>
         {[...Array(totalPages)].map((page,i) => (
             <div onClick={()=>{setCurrentPage(i+1)}} className='min-w-8 min-h-8 flex items-center justify-center border cursor-pointer'>{i+1}
             </div>
         ))}
+    </div>
     </div>
     
     </>
