@@ -1,4 +1,4 @@
-🌐 NAMASTE–ICD Mapping Dashboard (Frontend)
+🌐 NAMASTE–ICD Mapping Dashboard
 
 A modern React-based dashboard for exploring, validating, and managing terminology mappings between:
 
