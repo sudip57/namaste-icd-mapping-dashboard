@@ -143,7 +143,7 @@ export default function AllMappingDataPage() {
   return (
     <>
       {/* TOP NAV + SEARCH */}
-      <div className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center gap-3 px-5 py-4">
           {/* Search Input */}
           <div className="relative flex-1">
