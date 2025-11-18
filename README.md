@@ -1,4 +1,4 @@
-🌐 NAMASTE–ICD Mapping Dashboard (Frontend)
+🌐 NAMASTE–ICD Mapping Dashboard
 
 A modern React-based dashboard for exploring, validating, and managing terminology mappings between:
 
@@ -13,7 +13,7 @@ ICD-11 Biomedicine (subset)
 This UI is built to support researchers, practitioners, and developers working on NLP-based terminology alignment, SapBERT training, and LLM-assisted mapping validation.
 
 🚀 Features
-🔍 Smart Search
+🔍 Search
 
 Search NAMASTE terms by code, transliteration, diacritical, cleaned terms
 
