@@ -147,7 +147,7 @@ const runTraining = async () => {
         Upload POS & NEG training datasets (JSONL), then run the model fine-tuning job.
       </p>
     </div>
-    <div className="flex w-full gap-4 justify-center">
+    <div className="sm:flex w-full gap-4 justify-center">
     {/* UPLOAD CARD */}
     <div className="w-full max-w-3xl bg-white p-8 shadow-xl rounded-2xl border border-gray-200 space-y-10">
 

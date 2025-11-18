@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Stylized "N" using two diagonal strokes -->
+  <path d="M10 22 V10 L22 22 V10" />
+  
+  <!-- Subtle check mark to represent accuracy/validation -->
+  <path d="M12 24 L15 27 L20 20" />
+</svg>
