@@ -104,10 +104,10 @@ const runTraining = async () => {
 
   try {
     // Start backend job
-    await fetch("https://ayushlink-microservice-production.up.railway.app/run-training-job");
+    await fetch("https://automated-training-mapping-pipeline.up.railway.app/run-training-job");
 
     // Start streaming logs
-    const response = await fetch("https://ayushlink-microservice-production.up.railway.app/training-stream");
+    const response = await fetch("https://automated-training-mapping-pipeline.up.railway.app/training-stream");
 
     if (!response.body) {
       setStreamOutput("❌ No streaming body received");

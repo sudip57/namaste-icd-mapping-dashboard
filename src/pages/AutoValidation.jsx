@@ -7,7 +7,7 @@ export default function AutoValidation() {
   const lastSizeRef = useRef(0);
   const logBoxRef = useRef(null);
 
-  const BASE = "https://ayushlink-microservice-production.up.railway.app";
+  const BASE = "https://automated-training-mapping-pipeline.up.railway.app/";
 
   useEffect(() => {
     init();
