@@ -1,101 +1,75 @@
-🌐 NAMASTE–ICD Mapping Dashboard
+# 🌐 Namaste-ICD Dashboard
+Frontend interface for exploring, testing, and reviewing terminology mappings between:
 
-A modern React-based dashboard for exploring, validating, and managing terminology mappings between:
+- **NAMASTE AYUSH Codes**
+- **WHO Ayurveda Terminologies**
+- **ICD-11 TM2 (Traditional Medicine)**
+- **ICD-11 Biomedical Subset**
 
-NAMASTE AYUSH Codes
+This dashboard provides a user-friendly interface built with **React & Tailwind**, designed to support mapping analysis, dataset review, and AI-assisted validation workflows.
 
-WHO Standardised Terminologies for Ayurveda
+---
 
-ICD-11 TM2 (Traditional Medicine)
+## 🚀 Key Features
 
-ICD-11 Biomedicine (subset)
+### 🔍 Terminology Search
+- Search using code, Sanskrit, diacritical form, or transliteration
+- Supports fuzzy matching and nearest-term suggestions
+- Instant lookup through backend search API
 
-This UI is built to support researchers, practitioners, and developers working on NLP-based terminology alignment, SapBERT training, and LLM-assisted mapping validation.
+---
 
-🚀 Features
-🔍 Search
+### 📊 Mapping Review Panel
+Displays mapping candidate with:
+| Data Shown | Description |
+|------------|-------------|
+| NAMASTE term | Original medical terminology |
+| ICD-11 candidate | Suggested equivalent |
+| Similarity score | SapBERT-based |
+| AI reasoning | Extracted from backend LLM validation |
 
-Search NAMASTE terms by code, transliteration, diacritical, cleaned terms
+Reviewer can:
 
-Search ICD-11 TM2 by code, index terms, fully specified names
+✔ Approve mapping  
+✖ Reject mapping  
 
-Instant fuzzy-match & near-match support
+---
 
-📊 Mapping Review Interface
+### 🧠 AI Insights (Read-Only Display)
+- Shows AI-generated reasoning and similarity info returned by backend  
+- *Used only to assist manual approval*  
+- **No AI logic runs directly in the frontend**
 
-Displays:
+> 🚨 AI training & auto-validation features are **backend-only**.  
+> They rely on limited free-tier compute and may become unavailable during resource exhaustion.
 
-NAMASTE entry
+---
 
-ICD-11 candidate matches
+### 📁 Dataset Browser
+- Pagination for large terminology mappings  
+- Filter by similarity score range  
+- Switch views between:
+  - Final Approved Dataset  
+  - LLM Candidate Dataset  
+  - Embedding-Based Matches  
 
-SapBERT similarity score
+---
 
-Gemini LLM similarity reasoning
+## 🛠 Tech Stack
+| Layer | Technology |
+|-------|------------|
+| UI | React + Vite |
+| Styling | Tailwind CSS |
+| Icons | Lucide React |
+| State | React Hooks |
+| API Layer | REST over Axios |
 
-Reviewer options:
+---
 
-✔ Approve
+## 📦 Local Setup
 
-✘ Reject
-
-Mobile-optimized table layout with responsive action buttons.
-
-🧠 AI-Powered Evaluation (Integrated Backend Support)
-
-Supports backend workflows for:
-
-Gemini-based auto-validation
-
-SapBERT similarity / embedding review
-
-Dual mapping inspection (Namaste ↔ TM2)
-
-The frontend renders AI-generated scores and insights clearly for human decision-making.
-
-📁 Dataset Browsing
-
-View large mapping datasets with pagination
-
-Filter by similarity range
-
-Toggle between:
-
-LLM Mapping Dataset
-
-SapBERT Embedding Dataset
-
-Final Mapping Dataset
-
-📘 Documentation & API Status Pages
-
-Built-in UI sections for:
-✔ About NAMASTE Terminology
-✔ About ICD-11 TM2
-✔ Mapping methodology
-✔ API documentation
-✔ Usage instructions
-
-🛠️ Local Setup
-1️⃣ Clone
-
+```bash
 git clone https://github.com/sudip57/namaste-icd-mapping-dashboard.git
-
 cd namaste-icd-mapping-dashboard
-
-2️⃣ Install
-
 npm install
-
-3️⃣ Start Dev Server
-
 npm run dev
-
-🛡️ Disclaimer
-
-This dashboard is not a medical decision system.
-Mappings are generated using AI/ML models and must be reviewed by qualified medical professionals before clinical use.
-
-📜 License
-
-MIT License — Free for personal and commercial use.
