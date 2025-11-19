@@ -77,7 +77,9 @@ npm run dev
 📌 Backend Integration
 
 This dashboard interacts with the backend microservice documented here:
+
 👉 Backend Repo: https://github.com/sudip57/namaste-icd-mapping-microservice.git
+
 The frontend only reads mapping & validation data. AI training or retraining is handled manually from backend.
 
 ⚠ Disclaimer
@@ -90,6 +92,7 @@ All mappings are AI-generated and must be reviewed and approved by qualified pro
 MIT License — Open-source and free to use.
 
 📬 Contact
+
 Email: sudiptarafdar756@gmail.com
 
 Sudip Tarafdar – Creator & Maintainer
