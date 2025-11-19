@@ -91,5 +91,7 @@ MIT License — Open-source and free to use.
 
 📬 Contact
 Email: sudiptarafdar756@gmail.com
+
 Sudip Tarafdar – Creator & Maintainer
+
 For collaboration or feedback, reach out via GitHub issues or direct contact.
