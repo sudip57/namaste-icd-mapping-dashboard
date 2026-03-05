@@ -1,99 +1,56 @@
 import { useState, useEffect, useRef } from "react";
 import ItemCard from "../components/ItemCard";
+import { Search, Filter, ChevronLeft, ChevronRight, XCircle, Database, LayoutGrid } from "lucide-react";
 
 export default function AllMappingDataPage() {
   const BASE = "https://namaste-icd-microservice.vercel.app/data";
-
   const listRef = useRef();
 
   const [sourceType, setSourceType] = useState("llm");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-
   const [lowerBound, setLowerBound] = useState(0);
   const [upperBound, setUpperBound] = useState(1);
-
   const limit = 100;
   const [loading, setLoading] = useState(false);
-
   const [mappingData, setMappingData] = useState([]);
 
-  // SEARCH STATE
   const [search, setSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
-  // ---------------------------------------------------
-  // FETCH NORMAL PAGINATED DATA
-  // ---------------------------------------------------
   const fetchMappingData = async () => {
     try {
       setLoading(true);
-
       let endpoint = "";
       if (sourceType === "llm") endpoint = `${BASE}/get-LLM-data`;
-      else if (sourceType === "sapbert")
-        endpoint = `${BASE}/get-embedding-data`;
+      else if (sourceType === "sapbert") endpoint = `${BASE}/get-embedding-data`;
       else if (sourceType === "final") endpoint = `${BASE}/get-final-data`;
 
       const res = await fetch(
         `${endpoint}?page=${currentPage}&limit=${limit}&lowerbound=${lowerBound}&upperbound=${upperBound}`
       );
-
       const json = await res.json();
-
       setTotalPages(json.totalPages || 1);
       setMappingData(json.data || []);
-
       if (listRef.current) listRef.current.scrollTop = 0;
     } catch (err) {
-      console.error("Error fetching mapping data:", err);
+      console.error("Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------------------------------------------
-  // SEARCH FUNCTION
-  // ---------------------------------------------------
   const performSearch = async () => {
     if (!search.trim()) return;
-
     try {
       setLoading(true);
       setSearching(true);
-
-      const res = await fetch(
-        `https://namaste-icd-microservice.vercel.app/experimental/search?q=${encodeURIComponent(
-          search.trim()
-        )}`
-      );
-
+      const res = await fetch(`https://namaste-icd-microservice.vercel.app/experimental/search?q=${encodeURIComponent(search.trim())}`);
       const json = await res.json();
-      console.log("RAW SEARCH RESPONSE:", json);
-
-      // Normalize top-level response
       const data = Array.isArray(json) ? json[0] : json;
-
-      // 🔥 Fix shape: if API returned object instead of results array
-      let results = [];
-
-      if (Array.isArray(data.results)) {
-        results = data.results;
-      } else if (Array.isArray(json.results)) {
-        results = json.results;
-      } else if (Array.isArray(json)) {
-        results = json;
-      } else if (data && typeof data === "object") {
-        // If backend sent a single document instead of results array
-        if (data.namaste_entry || data.top_matches) {
-          results = [data];
-        }
-      }
-
-      console.log("NORMALIZED RESULTS:", results);
-
-      // 🔥 Normalize structure so ItemCard never breaks
+      let results = data.results || json.results || (Array.isArray(json) ? json : []);
+      
       results = results.map((item) => ({
         ...item,
         namaste_entry: item.namaste_entry || item.namaste || {},
@@ -102,11 +59,7 @@ export default function AllMappingDataPage() {
       }));
 
       setSearchResults(results);
-
-      if (results.length > 0) {
-        setMappingData([]);
-      }
-
+      if (results.length > 0) setMappingData([]);
       if (listRef.current) listRef.current.scrollTop = 0;
     } catch (err) {
       console.error("Search error:", err);
@@ -115,9 +68,6 @@ export default function AllMappingDataPage() {
     }
   };
 
-  // ---------------------------------------------------
-  // RESET SEARCH
-  // ---------------------------------------------------
   const clearSearch = () => {
     setSearching(false);
     setSearch("");
@@ -127,225 +77,209 @@ export default function AllMappingDataPage() {
     fetchMappingData();
   };
 
-  // ---------------------------------------------------
-  // NORMAL DATA MODE: FETCH ONLY WHEN NOT SEARCHING
-  // ---------------------------------------------------
   useEffect(() => {
-    if (searching) return; // stop unwanted reloads
+    if (searching) return;
     fetchMappingData();
-  }, [sourceType, currentPage, lowerBound, upperBound]);
+  }, [sourceType, currentPage]); // Bounds handled by "Apply" button to prevent flickering
 
-  // Reset page when changing sourceType
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [sourceType]);
+  useEffect(() => { setCurrentPage(1); }, [sourceType]);
 
   return (
-    <>
-      {/* TOP NAV + SEARCH */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center gap-3 px-5 py-4">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && performSearch()}
-              placeholder="Search Namaste / ICD terms…"
-              className="w-full h-12 pl-12 pr-4 bg-gray-100 rounded-2xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 transition outline-none shadow-sm"
-            />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-              🔎
-            </span>
-          </div>
-
-          {/* Search / Clear Button */}
-          {!searching ? (
-            <button
-              onClick={performSearch}
-              className="h-12 px-6 bg-black text-white rounded-2xl shadow hover:bg-gray-900 transition font-medium"
-            >
-              Search
-            </button>
-          ) : (
-            <button
-              onClick={clearSearch}
-              className="h-12 px-6 bg-red-600 text-white rounded-2xl shadow hover:bg-red-700 transition font-medium"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* FILTER BAR */}
-      {!searching && (
-        <div className="sticky top-[72px] z-40 bg-white/80 backdrop-blur-md border-b shadow-sm">
-          <div className="max-w-6xl mx-auto px-5 py-3 flex flex-wrap justify-between gap-3">
+    <div className="flex flex-col h-screen bg-[#F8FAFC]">
+      {/* --- DASHBOARD HEADER --- */}
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-5 shadow-sm">
+        <div className="max-w-7xl mx-auto space-y-5">
+          
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <label className="text-gray-700 font-medium">Source:</label>
-              <select
-                value={sourceType}
-                onChange={(e) => setSourceType(e.target.value)}
-                className="px-4 py-2 bg-gray-100 rounded-xl border border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none shadow-sm"
-              >
-                <option value="llm">LLM Mapping</option>
-                <option value="sapbert">SapBERT Mapping</option>
-                <option value="final">Final Mapping</option>
-              </select>
+               <div className="p-2 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-100">
+                  <Database size={20} />
+               </div>
+               <div>
+                  <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">Mapping Registry</h1>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                    {searching ? "Search Results" : `Source: ${sourceType} dataset`}
+                  </p>
+               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <label className="text-gray-700 font-medium">Similarity:</label>
-
-              <input
-                type="number"
-                value={lowerBound}
-                onChange={(e) => setLowerBound(Number(e.target.value))}
-                className="w-24 px-3 py-2 bg-gray-100 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
-              />
-
-              <input
-                type="number"
-                value={upperBound}
-                onChange={(e) => setUpperBound(Number(e.target.value))}
-                className="w-24 px-3 py-2 bg-gray-100 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
-              />
-
+            {/* Search Input Bar */}
+            <div className="flex items-center gap-2 flex-1 max-w-2xl">
+              <div className="relative flex-1 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && performSearch()}
+                  placeholder="Enter Namaste or ICD terms..."
+                  className="w-full h-12 pl-12 pr-4 bg-slate-100 border-transparent rounded-[14px] focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none text-sm font-medium"
+                />
+              </div>
               <button
-                onClick={() => {
-                  setCurrentPage(1);
-                  fetchMappingData();
-                }}
-                className="px-5 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                onClick={searching ? clearSearch : performSearch}
+                className={`h-12 px-6 rounded-[14px] font-black text-xs uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
+                  searching ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-slate-900 text-white hover:bg-slate-800"
+                }`}
               >
-                Apply
+                {searching ? <><XCircle size={16}/> Clear</> : "Search"}
               </button>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* MAIN CONTENT AREA */}
-      <div className="max-w-8xl mx-auto mt-4 px-5">
-        {/* MAIN LIST */}
-        <div
-          ref={listRef}
-          className="
-    h-[75vh]
-    overflow-y-scroll
-    m-4
-    p-4
-    bg-white
-    rounded-2xl
-    shadow-[0_2px_8px_rgba(0,0,0,0.06)]
-    flex flex-col gap-4
-    scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500
-  "
-          style={{
-            maxWidth: "100%",
-          }}
-        >
-          {loading ? (
-            <div className="space-y-6 p-4">
-              {[1, 2, 3].map((_, i) => (
-                <div
-                  key={i}
-                  className="animate-pulse bg-gray-100 shadow rounded-2xl h-32"
-                ></div>
-              ))}
+          {/* Filters Area */}
+          {!searching && (
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                  <button 
+                    onClick={() => setSourceType("llm")}
+                    className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase transition-all ${sourceType === 'llm' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  >LLM</button>
+                  <button 
+                    onClick={() => setSourceType("sapbert")}
+                    className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase transition-all ${sourceType === 'sapbert' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  >SapBERT</button>
+                  <button 
+                    onClick={() => setSourceType("final")}
+                    className={`px-4 py-1.5 rounded-lg text-[11px] font-black uppercase transition-all ${sourceType === 'final' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                  >Final</button>
+                </div>
+
+                <div className="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Similarity Range</span>
+                  <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={lowerBound}
+                      onChange={(e) => setLowerBound(Number(e.target.value))}
+                      className="w-14 text-center text-xs font-bold py-2 outline-none"
+                    />
+                    <div className="text-slate-300 px-1 font-bold">-</div>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={upperBound}
+                      onChange={(e) => setUpperBound(Number(e.target.value))}
+                      className="w-14 text-center text-xs font-bold py-2 outline-none border-l border-slate-100"
+                    />
+                  </div>
+                  <button
+                    onClick={() => { setCurrentPage(1); fetchMappingData(); }}
+                    className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-90"
+                  >
+                    <Filter size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <span className="text-slate-900">{(searching ? searchResults : mappingData).length}</span> Records in view
+              </div>
             </div>
-          ) : searching ? (
-            searchResults.length === 0 ? (
-              <p className="text-center text-gray-500 py-6">
-                No results found.
-              </p>
-            ) : (
-              searchResults.map((item, index) => (
-                <ItemCard
-                  key={index}
-                  item={item}
-                  index={index}
-                  sourceType="search"
-                />
-              ))
-            )
-          ) : mappingData.length === 0 ? (
-            <p className="text-center text-gray-500 py-6">No data found.</p>
-          ) : (
-            mappingData.map((item, index) => (
-              <ItemCard
-                key={index}
-                item={item}
-                index={index}
-                sourceType={sourceType}
-              />
-            ))
           )}
         </div>
       </div>
 
-      {/* PAGINATION */}
-      {!searching && (
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t shadow-lg py-3 mt-2">
-          <div className="max-w-6xl mx-auto flex justify-center gap-2 px-2 overflow-x-auto">
-            {(() => {
-              const windowSize = 10;
-              const start =
-                Math.floor((currentPage - 1) / windowSize) * windowSize + 1;
-              const end = Math.min(start + windowSize - 1, totalPages);
-
-              const pages = [];
-
-              // back
-              pages.push(
-                <button
-                  key="prev-win"
-                  onClick={() =>
-                    setCurrentPage(Math.max(1, start - windowSize))
-                  }
-                  disabled={start === 1}
-                  className="px-4 py-2 rounded-xl border bg-gray-100 disabled:opacity-40"
-                >
-                  ‹
-                </button>
-              );
-
-              // numbers
-              for (let i = start; i <= end; i++) {
-                pages.push(
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i)}
-                    className={`px-4 py-2 rounded-xl border ${
-                      currentPage === i
-                        ? "bg-black text-white shadow"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {i}
-                  </button>
-                );
-              }
-
-              // next
-              pages.push(
-                <button
-                  key="next-win"
-                  onClick={() => setCurrentPage(Math.min(totalPages, end + 1))}
-                  disabled={end >= totalPages}
-                  className="px-4 py-2 rounded-xl border bg-gray-100 disabled:opacity-40"
-                >
-                  ›
-                </button>
-              );
-
-              return pages;
-            })()}
-          </div>
+      {/* --- SCROLLABLE CONTENT AREA --- */}
+      <main 
+        ref={listRef}
+        className="flex-1 overflow-y-auto custom-scrollbar"
+      >
+        <div className="max-w-7xl mx-auto p-6 space-y-6">
+          {loading ? (
+            <div className="grid grid-cols-1 gap-6">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="h-48 bg-white border border-slate-100 rounded-[24px] p-8 flex flex-col gap-4 animate-pulse">
+                  <div className="h-4 w-1/4 bg-slate-100 rounded-full" />
+                  <div className="h-8 w-1/2 bg-slate-50 rounded-full" />
+                  <div className="h-20 w-full bg-slate-50 rounded-2xl" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 pb-20">
+              {(searching ? searchResults : mappingData).length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                  <LayoutGrid size={48} className="mb-4 opacity-20" />
+                  <p className="font-bold uppercase tracking-widest text-xs">No records found for this criteria</p>
+                </div>
+              ) : (
+                (searching ? searchResults : mappingData).map((item, index) => (
+                  <ItemCard
+                    key={index}
+                    item={item}
+                    index={index}
+                    sourceType={searching ? "search" : sourceType}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </div>
+      </main>
+
+      {/* --- PAGINATION BAR --- */}
+      {!searching && (
+        <footer className="bg-white/80 backdrop-blur-md border-t border-slate-200 px-6 py-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Navigation</span>
+              <div className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200 text-[10px] font-bold text-slate-600">
+                Page {currentPage} / {totalPages}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl disabled:opacity-20 transition-all active:scale-90 border border-transparent hover:border-slate-200"
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={20}/>
+              </button>
+
+              <div className="flex items-center gap-1.5 mx-2">
+                {(() => {
+                  const pages = [];
+                  const range = 1; 
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - range && i <= currentPage + range)) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          className={`min-w-[40px] h-10 px-2 rounded-xl text-[11px] font-black transition-all shadow-sm ${
+                            currentPage === i
+                              ? "bg-slate-900 text-white shadow-slate-300 scale-105"
+                              : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-400"
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    } else if (i === currentPage - range - 1 || i === currentPage + range + 1) {
+                      pages.push(<span key={`sep-${i}`} className="px-1 text-slate-300 font-bold">...</span>);
+                    }
+                  }
+                  return pages;
+                })()}
+              </div>
+
+              <button 
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl disabled:opacity-20 transition-all active:scale-90 border border-transparent hover:border-slate-200"
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={20}/>
+              </button>
+            </div>
+          </div>
+        </footer>
       )}
-    </>
+    </div>
   );
 }

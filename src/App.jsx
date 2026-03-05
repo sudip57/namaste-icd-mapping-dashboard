@@ -26,12 +26,29 @@ function App() {
   };
 
   const currentTitle = pageTitles[location.pathname] || "Namaste ICD Dashboard";
-
+ 
   return (
     <>
+     <style>
+        {`
+          .custom-sidebar-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .custom-sidebar-scrollbar::-webkit-scrollbar-track {
+            background: #0F172A;
+          }
+          .custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 10px;
+          }
+          .custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+          }
+        `}
+  </style>
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      <div className="lg:ml-64">
+      <div className="lg:ml-70">
         <Navbar
           onMenuClick={() => setSidebarOpen(true)}
           title={currentTitle}

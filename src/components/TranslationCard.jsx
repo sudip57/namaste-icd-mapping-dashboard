@@ -8,6 +8,9 @@ import {
   ChevronUp,
   BadgeCheck,
   Info,
+  Hash,
+  Database,
+  ArrowRight
 } from "lucide-react";
 
 const BASE = "https://namaste-icd-microservice.vercel.app";
@@ -28,7 +31,7 @@ export default function TranslationCard() {
     setTranslations(null);
 
     if (!input.trim()) {
-      setError("Please enter a code.");
+      setError("Please enter a code to translate.");
       return;
     }
 
@@ -38,182 +41,153 @@ export default function TranslationCard() {
       const res = await axios.get(`${BASE}/translate`, {
         params: { code: input.trim() },
       });
-
       const data = res.data;
-
       if (data.full_translation) {
         setTranslations([data.full_translation]);
       } else if (data.results && data.results.length > 0) {
         setTranslations(data.results.map((item) => item.full_translation));
       } else {
-        setError("No match found.");
+        setError("No exact match found in the unified dataset.");
       }
     } catch (err) {
       console.error(err);
-      setError("No match found.");
+      setError("System could not find a validated mapping for this code.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
-
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       translate();
     }
   };
-
   return (
-    <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg border p-8 mb-14">
+    <div className="w-full bg-white rounded-[2.5rem] shadow-xl border border-slate-200 p-8">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <ArrowLeftRight size={24} className="text-blue-600" />
-          Namaste–ICD code translator
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+          <ArrowLeftRight size={22} />
+        </div>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight">
+          Unified Code Translator
         </h2>
       </div>
 
       {/* INFO SECTION */}
-      <div className="flex items-start gap-3 mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <Info size={18} className="text-blue-700 mt-1" />
-        <p className="text-sm text-blue-800 leading-relaxed">
-          This tool allows you to convert **Namaste Traditional Medicine codes**
-          into their corresponding **ICD-11-TM2 disease classifications**, and
-          vice-versa. Enter any supported code (e.g. "SK50", “TM2 codes”, or
-          ICD-10 code like "A00"), and the system will return all validated
-          mappings along with descriptions. Currently it supports only
-          Namaste-ICD11TM2 codes not biomedicines.
+      <div className="flex items-start gap-3 mb-8 bg-slate-50 border border-slate-100 rounded-2xl p-4">
+        <Info size={18} className="text-slate-400 mt-0.5 shrink-0" />
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Cross-reference <span className="text-slate-900 font-bold">Namaste Traditional codes</span> with <span className="text-indigo-600 font-bold">ICD-11-TM2</span>. 
+          Enter SK, TM2, or legacy ICD-10 codes (e.g., "SK50") for a validated mapping.
         </p>
       </div>
 
-      {/* INPUT */}
-      <div className="flex gap-3 mb-4">
-        <input
-          type="text"
-          placeholder="Enter Namaste or ICD code…"
-          value={input}
-          onChange={(e) => {
-            const value = e.target.value;
-            setInput(value);
-
-            if (value.trim() === "") {
-              setTranslations(null);
-              setError("");
-            }
-          }}
-          onKeyDown={handleKeyPress}
-          className="w-full p-3 border rounded-xl text-sm focus:ring-2 ring-blue-300 outline-none"
-        />
-        <button
-          onClick={translate}
-          className="bg-blue-600 text-white px-5 rounded-xl flex items-center justify-center hover:bg-blue-700 transition"
-        >
-          {loading ? (
-            <Loader2 size={20} className="animate-spin" />
-          ) : (
-            <Search size={20} />
-          )}
-        </button>
+      {/* INPUT GROUP */}
+      <div className="relative group mb-2">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+          <Hash size={18} />
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Enter Namaste or ICD code…"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (e.target.value === "") {
+                setTranslations(null);
+                setError("");
+              }
+            }}
+            onKeyDown={handleKeyPress}
+            className="w-full h-14 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none text-sm font-medium"
+          />
+          <button
+            onClick={translate}
+            className="h-14 px-8 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200"
+          >
+            {loading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
+          </button>
+        </div>
       </div>
 
-      {/* ERROR */}
+      {/* ERROR MESSAGE */}
       {error && (
-        <div className="text-red-700 text-sm mb-4 bg-red-50 p-3 rounded-xl border border-red-200">
-          {error}
+        <div className="mt-4 flex items-center gap-2 text-red-600 text-[11px] font-bold bg-red-50 p-3 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-1">
+          <XCircle size={14} /> {error}
         </div>
       )}
 
-      {/* LOADING SKELETON */}
-      {loading && (
-        <div className="space-y-4 mt-5">
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="animate-pulse p-4 border rounded-xl bg-gray-50 shadow-sm"
-            >
-              <div className="h-4 w-24 bg-gray-300 rounded mb-3"></div>
-              <div className="h-3 w-40 bg-gray-300 rounded mb-2"></div>
-              <div className="h-3 w-32 bg-gray-300 rounded"></div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* RESULTS */}
+      {/* RESULTS LIST */}
       {translations && (
-        <div className="mt-6 space-y-4 max-h-[360px] overflow-y-auto pr-2">
+        <div className="mt-8 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
           {translations.map((t, index) => (
             <div
               key={index}
-              className="border rounded-xl bg-white p-5 shadow-sm hover:shadow-md transition relative"
+              className="group border border-slate-100 rounded-[1.5rem] bg-white p-5 hover:border-indigo-200 hover:shadow-lg transition-all relative overflow-hidden"
             >
-              {/* Top header */}
-              <div className="flex justify-between items-center">
-                <div className="text-xs font-medium text-gray-500">
-                  Result #{index + 1}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <BadgeCheck className="text-green-600" size={16} />
-                  <span className="text-[11px] bg-green-100 text-green-700 px-2 py-[2px] rounded-md">
-                    Verified Mapping
-                  </span>
+              {/* Result Badge */}
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Mapping #{index + 1}
+                </span>
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 border border-emerald-100 rounded-lg">
+                  <BadgeCheck className="text-emerald-600" size={14} />
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase">Verified</span>
                 </div>
               </div>
 
-              {/* Main codes */}
-              <div className="grid grid-cols-2 gap-6 mt-4">
-                {/* Namaste */}
-                <div>
-                  <div className="text-[11px] font-bold text-gray-700 uppercase">
-                    Namaste Code
-                  </div>
-                  <div className="text-blue-700 font-semibold text-base">
-                    {t.namaste_code}
-                  </div>
-                  <div className="text-gray-600 text-xs mt-1 leading-snug">
+              {/* Translation Grid */}
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                {/* Namaste Source */}
+                <div className="flex-1 w-full">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Source Term</div>
+                  <div className="text-base font-black text-slate-900 leading-tight">
+                    <span className="text-indigo-600 mr-2">{t.namaste_code}</span>
                     {t.namaste_name_diacritical}
                   </div>
                 </div>
 
-                {/* ICD */}
-                <div>
-                  <div className="text-[11px] font-bold text-gray-700 uppercase">
-                    ICD Code
-                  </div>
-                  <div className="text-green-700 font-semibold text-base">
-                    {t.icd_code}
-                  </div>
-                  <div className="text-gray-600 text-xs mt-1 leading-snug">
+                <div className="p-2 bg-slate-50 rounded-full text-slate-300 hidden md:block">
+                  <ArrowRight size={16} />
+                </div>
+
+                {/* ICD Target */}
+                <div className="flex-1 w-full">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Target Match</div>
+                  <div className="text-base font-black text-slate-900 leading-tight">
+                    <span className="text-emerald-600 mr-2">{t.icd_code}</span>
                     {t.icd_name}
                   </div>
                 </div>
               </div>
 
-              {/* Expandable details */}
-              <button
-                onClick={() => toggleExpand(index)}
-                className="mt-4 w-full flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-              >
-                {expanded[index] ? "Hide details" : "Show details"}
-                {expanded[index] ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
-              </button>
+              {/* Collapsible Details */}
+              <div className="mt-4 pt-4 border-t border-slate-50">
+                <button
+                  onClick={() => toggleExpand(index)}
+                  className="w-full flex items-center justify-between text-[11px] font-bold text-slate-400 hover:text-indigo-600 transition-colors"
+                >
+                  {expanded[index] ? "HIDE CLINICAL DATA" : "SHOW CLINICAL DATA"}
+                  {expanded[index] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
 
-              {expanded[index] && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-xl border text-xs leading-relaxed">
-                  <div>
-                    <b>Full Description:</b>{" "}
-                    {t.description || "No additional description."}
+                {expanded[index] && (
+                  <div className="mt-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[12px] text-slate-600 leading-relaxed animate-in slide-in-from-top-2">
+                    <div className="flex gap-2 mb-2">
+                      <Database size={14} className="text-slate-400 shrink-0 mt-0.5" />
+                      <p>
+                        <strong className="text-slate-900">Description:</strong>{" "}
+                        {t.description||t.short_definition||t.long_definition || "No specific index description available for this mapping."}
+                      </p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-2">
+                      Registry Source: Standardized TM2 Core Set
+                    </p>
                   </div>
-                  <div className="mt-2">
-                    <b>Source:</b> Standardized TM2 Mapping (Namaste ↔ ICD-10)
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ))}
         </div>
