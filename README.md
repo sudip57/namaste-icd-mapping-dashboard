@@ -45,18 +45,13 @@ The system follows a 5-stage pipeline to ensure clinical validity:
 
 ## 🔌 API Reference (AI Microservice)
 
-### Training Endpoints
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/run-training-job` | Triggers a Lightning AI GPU job to retrain SapBERT |
-| `GET` | `/training-status` | Returns the current progress of the training job |
-| `GET` | `/training-stream` | Streams live logs from the training environment |
-
-### Validation Endpoints
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/run-auto-validation` | Runs Gemini AI against a set of proposed mappings |
-| `POST` | `/tempMap/accept` | Approves a mapping (moves to human-verified state) |
+|--------|----------|-------------|
+| GET    | `/lookup?q=` | Search by term or code |
+| GET    | `/translate?code=` | Get ICD mapping for NAMASTE code |
+| GET    | `/data/get-final-data` | Fetch final validated mapping records |
+| POST   | `/namaste/upload_ayurveda` | Upload dataset (.csv) |
+| POST   | `/approve-mapping` | Submit final approved mapping |
 
 ---
 
@@ -64,6 +59,7 @@ The system follows a 5-stage pipeline to ensure clinical validity:
 
 * **Frontend:** React.js, Lucide Icons, Tailwind CSS, Axios
 * **Backend:** Node.js, Express
+* Repo: https://github.com/sudip57/namaste-icd-mapping-microservice
 * **AI/ML:** Python, PyTorch, SapBERT, Google Gemini API, Lightning AI
 * **DevOps:** Dropbox API, Railway, Vercel
 
