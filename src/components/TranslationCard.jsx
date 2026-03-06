@@ -8,6 +8,7 @@ import {
   ChevronUp,
   BadgeCheck,
   Info,
+  XCircle,
   Hash,
   Database,
   ArrowRight
