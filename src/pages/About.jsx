@@ -57,7 +57,6 @@ export default function About() {
               </div>
             </div>
           </div>
-
           {/* ICD-11 Card */}
           <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-200 relative overflow-hidden group hover:border-blue-300 transition-all">
             <div className="absolute top-0 right-0 p-8 opacity-5 text-blue-600 group-hover:scale-110 transition-transform">

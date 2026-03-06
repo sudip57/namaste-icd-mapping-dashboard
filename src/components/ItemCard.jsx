@@ -40,13 +40,18 @@ export default function ItemCard({ item, index, sourceType }) {
   let namaste;
   let matches = [];
 
-  if (["llm", "sapbert", "search"].includes(sourceType)) {
-    namaste = item.namaste_entry;
-    matches = item.top_matches || [];
-  } else {
-    namaste = item.namaste;
-    matches = item.icd ? [{ icd_entry: item.icd }] : [];
-  }
+ if (["llm", "sapbert", "search"].includes(sourceType)) {
+  namaste = item.namaste_entry;
+  matches = item.top_matches || [];
+} else {
+  // Logic for "final" or "manual" entries
+  namaste = item.namaste || item.namaste_entry; 
+  // Ensure we capture similarity if it exists on the root item
+  matches = item.icd ? [{ 
+    icd_entry: item.icd, 
+    similarity: item.similarity || item.score || 0 // Capture the score here
+  }] : [];
+}
 
   if (!namaste) return null;
 
@@ -150,13 +155,10 @@ export default function ItemCard({ item, index, sourceType }) {
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
               Proposed ICD-11 Mappings
             </h4>
-
             {matches.map((match, i) => {
               const icd = match.icd_entry || match.icd || {};
               const geminiSim = match.gemini_result?.similarity_score ?? 0;
               const modelSim = match.similarity ?? 0;
-              const sapbertSim = match.sapbert_score ?? 0;
-
               return (
                 <div
                   key={i}
@@ -186,7 +188,6 @@ export default function ItemCard({ item, index, sourceType }) {
                               ? "Clinical Index"
                               : "Classification Path"}
                           </p>
-
                           <div className="text-xs text-slate-600 leading-relaxed italic">
                             {icd.description ? (
                               icd.description
@@ -218,25 +219,23 @@ export default function ItemCard({ item, index, sourceType }) {
 
                       {/* Triple Sim Scores */}
                       <div className="flex flex-wrap gap-2 mt-4">
-                        <div
+                        {sourceType != "llm" && sourceType != "final" ?(<div
+                          className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[9px] font-black ${getScoreColor(modelSim)}`}
+                        >
+                          <Target size={12} /> SAPBERT: {modelSim.toFixed(3)}
+                        </div>):(<><div
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[9px] font-black ${getScoreColor(geminiSim)}`}
                         >
                           <Brain size={12} /> GEMINI: {geminiSim.toFixed(3)}
-                        </div>
+                        </div> 
                         <div
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[9px] font-black ${getScoreColor(modelSim)}`}
                         >
-                          <Target size={12} /> MODEL: {modelSim.toFixed(3)}
-                        </div>
-                        <div
-                          className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-[9px] font-black ${getScoreColor(sapbertSim)}`}
-                        >
-                          <Activity size={12} /> SAPBERT:{" "}
-                          {sapbertSim.toFixed(3)}
-                        </div>
+                          <Target size={12} /> SAPBERT: {modelSim}
+                        </div></>
+                      )}
                       </div>
                     </div>
-
                     {/* Approve/Reject Buttons */}
                     <div className="flex lg:flex-col gap-2 shrink-0 self-center">
                       <button
