@@ -1,100 +1,73 @@
-# 🌐 Namaste-ICD Dashboard
-Frontend interface for exploring, testing, and reviewing terminology mappings between:
+# 🧠 Namaste-ICD: AYUSH to ICD-11 Mapping Microservice
 
-- **NAMASTE AYUSH Codes**
-- **WHO Ayurveda Terminologies**
-- **ICD-11 TM2 (Traditional Medicine)**
-- **ICD-11 Biomedical Subset**
+**Namaste-ICD** is a specialized AI-driven terminology mapping platform designed to bridge the gap between traditional medicine (Ayurveda, Siddha, Unani) and global healthcare standards (**ICD-11 TM2**).
 
-This dashboard provides a user-friendly interface built with **React & Tailwind**, designed to support mapping analysis, dataset review, and AI-assisted validation workflows.
+---
+
+## 🏗 System Architecture
+
+The project utilizes a distributed microservice architecture to handle heavy AI inference and GPU-intensive training jobs.
+
+
+<img width="1408" height="768" alt="architecture" src="https://github.com/user-attachments/assets/f189c7d8-eee1-4b27-b683-c7e60e3e297d" />
+
+### 1. Core Components
+* **Frontend (React/Tailwind):** A professional validation dashboard for medical experts to review, approve, or reject AI-proposed mappings.
+* **Node.js Backend:** The central orchestrator managing search logic, mapping storage, and synchronization with ICD-11.
+* **Python AI Microservice (Railway):** Handles SapBERT inference and Gemini-driven clinical validation.
+* **Lightning AI (GPU):** A dedicated pipeline for fine-tuning SapBERT models on specific AYUSH-ICD pairs.
+* **Dropbox Storage:** Acts as the persistent layer for model embeddings and training datasets.
+
+---
+
+## 🔍 Mapping Workflow
+
+The system follows a 5-stage pipeline to ensure clinical validity:
+
+| Stage | Process | Logic |
+| :--- | :--- | :--- |
+| **1** | **Rule-Based Lookup** | Direct matches and synonym mapping |
+| **2** | **SapBERT Ranking** | Semantic similarity scores generated via vector embeddings |
+| **3** | **AI Validation** | Gemini LLM analyzes clinical definitions to verify context |
+| **4** | **Human Approval** | Experts verify the Top 3 proposed matches via UI |
+| **5** | **Publication** | Finalized mappings synced to production database |
 
 ---
 
 ## 🚀 Key Features
 
-### 🔍 Terminology Search
-- Search using code, Sanskrit, diacritical form, or transliteration
-- Supports fuzzy matching and nearest-term suggestions
-- Instant lookup through backend search API
+* **Dual-Model Validation:** Cross-references SapBERT's technical similarity with Gemini's clinical reasoning.
+* **Interactive Validation UI:** `ItemCard` components with real-time feedback and score visualizations.
+* **Automated Training Pipeline:** Trigger GPU training jobs via REST endpoints to improve accuracy.
+* **Live Logging:** Stream training logs directly to the frontend via Server-Sent Events (SSE).
 
 ---
 
-### 📊 Mapping Review Panel
-Displays mapping candidate with:
-| Data Shown | Description |
-|------------|-------------|
-| NAMASTE term | Original medical terminology |
-| ICD-11 candidate | Suggested equivalent |
-| Similarity score | SapBERT-based |
-| AI reasoning | Extracted from backend LLM validation |
+## 🔌 API Reference (AI Microservice)
 
-Reviewer can:
+### Training Endpoints
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/run-training-job` | Triggers a Lightning AI GPU job to retrain SapBERT |
+| `GET` | `/training-status` | Returns the current progress of the training job |
+| `GET` | `/training-stream` | Streams live logs from the training environment |
 
-✔ Approve mapping  
-✖ Reject mapping  
-
----
-
-### 🧠 AI Insights (Read-Only Display)
-- Shows AI-generated reasoning and similarity info returned by backend  
-- *Used only to assist manual approval*  
-- **No AI logic runs directly in the frontend**
-
-> 🚨 AI training & auto-validation features are **backend-only**.  
-> They rely on limited free-tier compute and may become unavailable during resource exhaustion.
-
----
-
-### 📁 Dataset Browser
-- Pagination for large terminology mappings  
-- Filter by similarity score range  
-- Switch views between:
-  - Final Approved Dataset  
-  - LLM Candidate Dataset  
-  - Embedding-Based Matches  
+### Validation Endpoints
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/run-auto-validation` | Runs Gemini AI against a set of proposed mappings |
+| `POST` | `/tempMap/accept` | Approves a mapping (moves to human-verified state) |
 
 ---
 
 ## 🛠 Tech Stack
-| Layer | Technology |
-|-------|------------|
-| UI | React + Vite |
-| Styling | Tailwind CSS |
-| Icons | Lucide React |
-| State | React Hooks |
-| API Layer | REST over Axios |
+
+* **Frontend:** React.js, Lucide Icons, Tailwind CSS, Axios
+* **Backend:** Node.js, Express
+* **AI/ML:** Python, PyTorch, SapBERT, Google Gemini API, Lightning AI
+* **DevOps:** Dropbox API, Railway, Vercel
 
 ---
 
-## 📦 Local Setup
-
-```bash
-git clone https://github.com/sudip57/namaste-icd-mapping-dashboard.git
-cd namaste-icd-mapping-dashboard
-npm install
-npm run dev
-```
-📌 Backend Integration
-
-This dashboard interacts with the backend microservice documented here:
-
-👉 Backend Repo: https://github.com/sudip57/namaste-icd-mapping-microservice.git
-
-The frontend only reads mapping & validation data. AI training or retraining is handled manually from backend.
-
-⚠ Disclaimer
-
-This system is intended for research and analysis only.
-All mappings are AI-generated and must be reviewed and approved by qualified professionals before any clinical use.
-
-📜 License
-
-MIT License — Open-source and free to use.
-
-📬 Contact
-
-Email: sudiptarafdar756@gmail.com
-
-Sudip Tarafdar – Creator & Maintainer
-
-For collaboration or feedback, reach out via GitHub issues or direct contact.
+## ⚖️ Usage Warning
+The Python AI microservice consumes significant cloud resources. **Avoid repeated training requests.** This service is optimized for R&D; monitor quota limits during GPU jobs.
