@@ -7,6 +7,7 @@ import {
   ShieldAlert, 
   Binary, 
   Info, 
+  Github,
   ArrowUpRight, 
   FileCheck
 } from "lucide-react";
@@ -90,7 +91,7 @@ const Map = () => {
                 {[
                   { icon: "🔍", title: "Fuzzy Engine", desc: "Diacritic normalization" },
                   { icon: "🤖", title: "LLM Validate", desc: "Gemini-driven audit" },
-                  { icon: "🧬", title: "SapBERT", desc: "Contrastive learning" },
+                  { icon: "🧬", title: "SapBERT", desc: "Semantic Similarity" },
                   { icon: "📊", title: "Explorer UI", desc: "Human-in-the-loop" }
                 ].map((step, i) => (
                   <li key={i} className="flex items-start gap-3 group cursor-default">
@@ -170,9 +171,7 @@ const Map = () => {
 
       <footer className="w-full border-t border-slate-200 py-10 text-center flex flex-col items-center gap-4">
         <div className="flex gap-6 text-slate-400">
-           <a href="#" className="hover:text-indigo-600 transition-colors text-xs font-bold uppercase tracking-widest">Documentation</a>
-           <a href="#" className="hover:text-indigo-600 transition-colors text-xs font-bold uppercase tracking-widest">API Docs</a>
-           <a href="#" className="hover:text-indigo-600 transition-colors text-xs font-bold uppercase tracking-widest">GitHub</a>
+           <a href="https://github.com/sudip57/namaste-icd-mapping-dashboard" className="hover:text-black rounded-full border-2 p-1 transition-colors text-xs font-bold uppercase tracking-widest">  <Github/></a>
         </div>
         <p className="text-slate-400 text-xs font-medium italic">
           © {new Date().getFullYear()} Namaste–ICD Research Group. Built for Medical NLP Innovation.
