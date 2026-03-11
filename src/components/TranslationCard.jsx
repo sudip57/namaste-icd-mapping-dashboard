@@ -79,7 +79,7 @@ export default function TranslationCard() {
       <div className="flex items-start gap-3 mb-8 bg-slate-50 border border-slate-100 rounded-2xl p-4">
         <Info size={18} className="text-slate-400 mt-0.5 shrink-0" />
         <p className="text-xs text-slate-500 leading-relaxed">
-          Cross-reference <span className="text-slate-900 font-bold">Namaste Traditional codes</span> with <span className="text-indigo-600 font-bold">ICD-11-TM2</span>. 
+          Cross-reference <span className="text-slate-900 font-bold">Namaste Traditional codes</span> with <span className="text-indigo-600 font-bold">WHO ICD-11-TM2</span>. 
           Enter SK, TM2, or legacy ICD-10 codes (e.g., "SK50") for a validated mapping.
         </p>
       </div>
