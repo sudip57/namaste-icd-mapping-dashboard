@@ -143,7 +143,7 @@ export default function TranslationCard() {
               <div className="flex flex-col md:flex-row items-center gap-6">
                 {/* Namaste Source */}
                 <div className="flex-1 w-full">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Source Term</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Namaste Term</div>
                   <div className="text-base font-black text-slate-900 leading-tight">
                     <span className="text-indigo-600 mr-2">{t.namaste_code}</span>
                     {t.namaste_name_diacritical}
@@ -156,7 +156,7 @@ export default function TranslationCard() {
 
                 {/* ICD Target */}
                 <div className="flex-1 w-full">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Target Match</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">ICD Match</div>
                   <div className="text-base font-black text-slate-900 leading-tight">
                     <span className="text-emerald-600 mr-2">{t.icd_code}</span>
                     {t.icd_name}
