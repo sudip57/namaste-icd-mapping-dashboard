@@ -30,7 +30,7 @@ const Map = () => {
             <span className="text-slate-400">Unified Mapping</span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-            A high-performance bridge between <span className="text-white border-b border-indigo-500">Traditional Medicine</span> and global <span className="text-white border-b border-blue-500">ICD-11 TM2</span> standards.
+            A high-performance bridge between <span className="text-white border-b border-indigo-500">Traditional Medicine</span> and global <span className="text-white border-b border-blue-500">WHO ICD-11 TM2</span> standards.
           </p>
         </div>
       </div>
